@@ -1,3 +1,4 @@
-/target
+# Rust build output (any architecture subdirectory)
+target/
 **/*.rs.bk
 Cargo.lock
