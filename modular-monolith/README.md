@@ -18,15 +18,19 @@ A modular monolith sits between a big-ball-of-mud monolith and microservices:
 ## Layout
 
 ```
-architecture-lab/
+modular-monolith/
 ├── Cargo.toml                 # workspace + shared dependency versions
-└── crates/
+└── modules/
     ├── shared/                # shared kernel: AppError only. Keep it tiny.
     ├── users/                 # bounded context: users
     ├── catalog/               # bounded context: products & prices
     ├── orders/                # bounded context: orders (uses users + catalog)
     └── app/                   # composition root: wires modules, runs HTTP server
 ```
+
+Each subdirectory under `modules/` is a Rust *crate* (the compilation unit).
+Grouping them in `modules/` reinforces that each crate is one module of the
+monolith.
 
 ## Anatomy of a module
 
@@ -53,7 +57,7 @@ Orders needs two things from its neighbours when placing an order:
 2. *What does this product cost?* → `catalog::api::ProductCatalog`
 
 Orders depends on those **traits**, not on `UserService` / `ProductService`. The
-composition root (`crates/app/src/main.rs`) injects the real implementations:
+composition root (`modules/app/src/main.rs`) injects the real implementations:
 
 ```rust
 let orders = OrdersModule::new(

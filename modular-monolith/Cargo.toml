@@ -1,11 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/shared",
-    "crates/users",
-    "crates/catalog",
-    "crates/orders",
-    "crates/app",
+    "modules/shared",
+    "modules/users",
+    "modules/catalog",
+    "modules/orders",
+    "modules/app",
 ]
 
 [workspace.package]
@@ -27,7 +27,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Internal module crates.
-shared = { path = "crates/shared" }
-users = { path = "crates/users" }
-catalog = { path = "crates/catalog" }
-orders = { path = "crates/orders" }
+shared = { path = "modules/shared" }
+users = { path = "modules/users" }
+catalog = { path = "modules/catalog" }
+orders = { path = "modules/orders" }
