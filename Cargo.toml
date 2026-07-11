@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/shared",
+    "crates/users",
+    "crates/catalog",
+    "crates/orders",
+    "crates/app",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Dependencies shared across the workspace. Individual crates opt in with
+# `dep = { workspace = true }`, so every module uses the exact same version.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Internal module crates.
+shared = { path = "crates/shared" }
+users = { path = "crates/users" }
+catalog = { path = "crates/catalog" }
+orders = { path = "crates/orders" }

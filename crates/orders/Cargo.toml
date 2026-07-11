@@ -1,0 +1,17 @@
+[package]
+name = "orders"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+shared = { workspace = true }
+# Orders depends on the Users and Catalog crates, but — by convention and by
+# what those crates expose — only touches their `api` modules and id types.
+users = { workspace = true }
+catalog = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }

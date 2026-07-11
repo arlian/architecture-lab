@@ -1,0 +1,13 @@
+[package]
+name = "users"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+shared = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
