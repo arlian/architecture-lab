@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+# Each service is its OWN independently-deployable binary. Unlike the modular
+# monolith, there is no shared library crate and no composition root: services
+# know each other only by URL and talk over HTTP. We keep them in one workspace
+# purely for convenience (one `cargo build` locally) — in a real deployment each
+# would live in its own repo/pipeline and ship as its own container.
+members = [
+    "services/users-service",
+    "services/catalog-service",
+    "services/orders-service",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. Note we deliberately do NOT share a `shared` crate here — see
+# the README. Each service duplicates the tiny bits it needs (e.g. AppError).
+# That duplication is a feature: it keeps services independently deployable.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# The one big addition versus the monolith: an HTTP client. Cross-context calls
+# are now real network calls, so a service that depends on another needs this.
+# Default features use the platform TLS (SChannel on Windows) — no extra build
+# tools required.
+reqwest = { version = "0.12", features = ["json"] }

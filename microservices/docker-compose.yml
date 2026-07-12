@@ -1,0 +1,43 @@
+# Runs all three services as containers on one network. This is where the
+# microservice wiring becomes concrete:
+#
+#   * Each service builds from the SAME context (the workspace root, `.`) but a
+#     different Dockerfile — one image per deployable.
+#   * Service discovery is just Docker's built-in DNS: inside the compose network
+#     each service is reachable by its name (`users`, `catalog`). That's why
+#     Orders is handed USERS_URL=http://users:3001, not a hard-coded IP.
+#   * Only the ports you want on your host are published; internally the services
+#     talk over the private network.
+
+services:
+  users:
+    build:
+      context: .
+      dockerfile: services/users-service/Dockerfile
+    ports:
+      - "3001:3001"
+
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+    ports:
+      - "3002:3002"
+
+  orders:
+    build:
+      context: .
+      dockerfile: services/orders-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      # Reach the neighbours by their compose service name, not localhost.
+      USERS_URL: http://users:3001
+      CATALOG_URL: http://catalog:3002
+    # `depends_on` only orders *startup*, not readiness — and that's fine here:
+    # Orders calls its neighbours lazily (when an order is placed), never at boot.
+    # Making this wait for real health is a good exercise (add healthchecks +
+    # `condition: service_healthy`).
+    depends_on:
+      - users
+      - catalog
