@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+# Same rationale as the microservices workspace: one `cargo build` locally, but
+# each service is conceptually its own repo/pipeline/container. What members
+# agree on isn't a URL any more (as in microservices) but the *shape of an
+# event on the wire* — and even that shape is duplicated per-consumer, never
+# imported, so services stay independently deployable. See the README.
+members = [
+    "services/users-service",
+    "services/catalog-service",
+    "services/orders-service",
+    "services/notifications-service",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. As in the microservices lab we deliberately do NOT share a
+# `shared` crate — each service duplicates the tiny bits it needs (AppError,
+# event shapes). That duplication is a feature: it keeps services independently
+# deployable.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# The one big addition versus microservices: a broker client instead of an HTTP
+# client. Plain NATS core (no JetStream) — pub/sub with no persistence/replay.
+# That trade-off is deliberate for a first pass at choreography; see the
+# README's "where to take it next" section for JetStream/Kafka as an exercise.
+async-nats = ">=0.33, <1.0"
+futures = "0.3"
