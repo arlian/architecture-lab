@@ -1,0 +1,70 @@
+# Runs NATS plus all five services as containers on one network.
+#
+#   * orders-command and orders-query are two separate deployables for the
+#     SAME bounded context — that split is the whole point of this lab. They
+#     share no code and no datastore; the only thing connecting them is the
+#     order lifecycle events flowing over NATS.
+#   * notifications has no published port: it's a pure event consumer, same
+#     role as in the event-driven lab.
+
+services:
+  nats:
+    image: nats:2-alpine
+    ports:
+      - "4222:4222"
+
+  users:
+    build:
+      context: .
+      dockerfile: services/users-service/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  orders-command:
+    build:
+      context: .
+      dockerfile: services/orders-command-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  orders-query:
+    build:
+      context: .
+      dockerfile: services/orders-query-service/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      NATS_URL: nats://nats:4222
+    # orders-query only ever learns about orders from events published by
+    # orders-command — there is no direct dependency between them, hence no
+    # ORDERS_COMMAND_URL here. `depends_on: nats` is the only real dependency.
+    depends_on:
+      - nats
+
+  notifications:
+    build:
+      context: .
+      dockerfile: services/notifications-service/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats

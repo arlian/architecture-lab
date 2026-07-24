@@ -1,0 +1,31 @@
+[workspace]
+resolver = "2"
+# Same rationale as the other labs: one `cargo build` locally, but each
+# service is conceptually its own repo/pipeline/container. The new split here
+# is orders-command-service vs orders-query-service — the same bounded
+# context, deliberately deployed twice, once for writes and once for reads.
+members = [
+    "services/users-service",
+    "services/catalog-service",
+    "services/orders-command-service",
+    "services/orders-query-service",
+    "services/notifications-service",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+async-nats = ">=0.33, <1.0"
+futures = "0.3"
