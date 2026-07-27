@@ -1,0 +1,66 @@
+# Runs all five services as containers on one network.
+#
+#   * Each Rust service builds from the SAME context (the workspace root, `.`)
+#     but a different Dockerfile — one image per deployable.
+#   * users/catalog/orders are unchanged from microservices/: orders-service
+#     still calls users and catalog directly to validate and price an order.
+#   * web-bff and mobile-bff are new: each is a separate gateway in front of
+#     the same three backend services, calling exactly what its own client
+#     screen needs — see the README for what that difference looks like on
+#     the wire. Note mobile-bff has no CATALOG_URL: it never talks to catalog.
+
+services:
+  users:
+    build:
+      context: .
+      dockerfile: services/users-service/Dockerfile
+    ports:
+      - "3001:3001"
+
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+    ports:
+      - "3002:3002"
+
+  orders:
+    build:
+      context: .
+      dockerfile: services/orders-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      USERS_URL: http://users:3001
+      CATALOG_URL: http://catalog:3002
+    depends_on:
+      - users
+      - catalog
+
+  web-bff:
+    build:
+      context: .
+      dockerfile: services/web-bff/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      ORDERS_URL: http://orders:3003
+      USERS_URL: http://users:3001
+      CATALOG_URL: http://catalog:3002
+    depends_on:
+      - orders
+      - users
+      - catalog
+
+  mobile-bff:
+    build:
+      context: .
+      dockerfile: services/mobile-bff/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      ORDERS_URL: http://orders:3003
+      USERS_URL: http://users:3001
+    depends_on:
+      - orders
+      - users

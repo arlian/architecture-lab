@@ -1,0 +1,38 @@
+[workspace]
+resolver = "2"
+# Same rationale as the microservices workspace: one `cargo build` locally, but
+# each service is conceptually its own repo/pipeline/container. Two new members
+# versus microservices: web-bff and mobile-bff, the client-tailored gateways
+# that sit in front of the same three backend services.
+members = [
+    "services/users-service",
+    "services/catalog-service",
+    "services/orders-service",
+    "services/web-bff",
+    "services/mobile-bff",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. As in the earlier labs we deliberately do NOT share a
+# `shared` crate — each service duplicates the tiny bits it needs (AppError,
+# HTTP client wrappers). That duplication is a feature: it keeps services
+# independently deployable.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Every backend service call in this lab is HTTP, same as microservices.
+reqwest = { version = "0.12", features = ["json"] }
+# The BFFs use this to fan out to several backend services concurrently
+# instead of awaiting them one at a time — see web-bff/src/views.rs.
+futures = "0.3"
