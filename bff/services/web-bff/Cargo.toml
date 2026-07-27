@@ -1,0 +1,24 @@
+[package]
+name = "web-bff"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "web-bff"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+# Talks to orders/users/catalog over HTTP, like orders-service does.
+reqwest = { workspace = true }
+# Fans the user + per-line product lookups out concurrently — see views.rs.
+futures = { workspace = true }
