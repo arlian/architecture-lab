@@ -1,0 +1,43 @@
+[workspace]
+resolver = "2"
+# Same rationale as the event-driven workspace: one `cargo build` locally, but
+# each service is conceptually its own repo/pipeline/container. Same six
+# members as the saga workspace — this lab changes how they talk, not how
+# many there are. What's gone is the orchestrator: no member here drives the
+# others.
+members = [
+    "services/users-service",
+    "services/catalog-service",
+    "services/inventory-service",
+    "services/payments-service",
+    "services/orders-service",
+    "services/notifications-service",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. As in the earlier labs we deliberately do NOT share a
+# `shared` crate — each service duplicates the tiny bits it needs (AppError,
+# event shapes). That duplication is a feature: it keeps services
+# independently deployable. It bites harder here than anywhere else in the
+# lab, though: with no orchestrator owning the workflow, four services end up
+# holding their own copy of "what an order is" — see the README.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Same broker as event-driven: plain NATS core (no JetStream). Every message
+# in this lab is a plain published fact, not a durable log entry — see the
+# README's "known gaps" for what that costs when nobody is supervising the
+# workflow.
+async-nats = ">=0.33, <1.0"
+futures = "0.3"

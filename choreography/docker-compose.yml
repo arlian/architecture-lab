@@ -1,0 +1,91 @@
+# Runs NATS plus all six services as containers on one network.
+#
+#   * Each Rust service builds from the SAME context (the workspace root, `.`)
+#     but a different Dockerfile — one image per deployable.
+#   * No service's config names another service's URL — every one of them only
+#     ever talks to `nats`. That was already true in event-driven and saga.
+#     What's new is that it's true of the *workflow* too: there is no
+#     coordinator container, and none of the six is privileged over the
+#     others. `orders` below is not the boss of `inventory` and `payments`;
+#     it publishes one fact and then reads about what happened, like anybody
+#     else.
+#   * notifications has no published port: it has no HTTP surface, only NATS
+#     subscriptions. Watch `docker compose logs -f notifications` to see it
+#     work.
+#
+# A note on `depends_on`: it orders container *startup* only, never
+# readiness. That mattered in the saga lab because orders-service was the
+# orchestrator. It matters differently here — every service subscribes at
+# boot, and plain NATS core does not replay, so a service that is slow to
+# come up simply misses whatever was published while it was down. Nothing
+# retries and nothing notices. See the README's "known gaps".
+
+services:
+  nats:
+    image: nats:2-alpine
+    ports:
+      - "4222:4222"
+
+  users:
+    build:
+      context: .
+      dockerfile: services/users-service/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  orders:
+    build:
+      context: .
+      dockerfile: services/orders-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  inventory:
+    build:
+      context: .
+      dockerfile: services/inventory-service/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  payments:
+    build:
+      context: .
+      dockerfile: services/payments-service/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+
+  notifications:
+    build:
+      context: .
+      dockerfile: services/notifications-service/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
