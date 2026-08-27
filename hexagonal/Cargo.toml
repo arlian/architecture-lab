@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+# Two crates, and the split IS the architecture.
+#
+#   * `orders-core` is the hexagon: domain, ports, use cases. It is a LIBRARY
+#     with no entry point — it cannot be run, only driven.
+#   * `orders-app` is everything outside the hexagon: the adapters that plug
+#     into those ports, plus two composition roots that pick which adapters to
+#     use.
+#
+# The dependency arrow points one way only: orders-app -> orders-core. Cargo
+# enforces that at compile time, which is why the dependency lists below are
+# the shortest possible summary of this whole lab.
+members = ["orders-core", "orders-app"]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+# --- allowed inside the hexagon -------------------------------------------
+# Nothing here is infrastructure: they describe data and errors, they don't
+# talk to the outside world.
+serde = { version = "1", features = ["derive"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+
+# --- adapters only --------------------------------------------------------
+# A web framework, an async runtime, a JSON codec. If any of these ever
+# appears in orders-core/Cargo.toml, the hexagon has sprung a leak.
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+orders-core = { path = "orders-core" }
