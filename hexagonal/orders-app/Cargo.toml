@@ -4,12 +4,19 @@ edition.workspace = true
 version.workspace = true
 license.workspace = true
 
+# A composition root: it picks the adapters, wires them to the core, and
+# starts a driving adapter. No order logic lives in it.
+[[bin]]
+name = "serve"
+path = "src/bin/serve.rs"
+
 # Every infrastructure dependency in this lab lives in this file. That is not
 # an accident of packaging — it is the architecture, spelled out by Cargo.
 # `orders-core` cannot use any of these, because it doesn't depend on them and
 # the arrow only points this way.
 [dependencies]
 orders-core = { workspace = true }
+axum = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
