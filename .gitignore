@@ -2,3 +2,6 @@
 target/
 **/*.rs.bk
 Cargo.lock
+
+# hexagonal lab: order stores created by its CLI/serve demo
+hexagonal/*.json
