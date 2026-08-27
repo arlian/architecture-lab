@@ -4,11 +4,16 @@ edition.workspace = true
 version.workspace = true
 license.workspace = true
 
-# A composition root: it picks the adapters, wires them to the core, and
-# starts a driving adapter. No order logic lives in it.
+# The two composition roots. Same library, same use cases, two programs — one
+# that listens on a socket and one that reads argv. Neither contains a line of
+# order logic; both are ~40 lines of "here are your adapters, off you go".
 [[bin]]
 name = "serve"
 path = "src/bin/serve.rs"
+
+[[bin]]
+name = "cli"
+path = "src/bin/cli.rs"
 
 # Every infrastructure dependency in this lab lives in this file. That is not
 # an accident of packaging — it is the architecture, spelled out by Cargo.
