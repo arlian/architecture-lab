@@ -1,0 +1,23 @@
+[package]
+name = "orders-core"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# The dependency list is the claim this lab makes. No axum, no reqwest, no
+# sqlx, no tokio: the hexagon cannot open a socket, serve a route, or touch a
+# disk, because it has nothing to do it with.
+[dependencies]
+serde = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+# Not infrastructure — `async_trait` is a macro that desugars async methods in
+# traits. It brings no runtime with it; who executes the future is the
+# adapter's business.
+async-trait = { workspace = true }
+
+# tokio appears ONLY here, and only to spin an executor for `#[tokio::test]`.
+# A test harness is itself a driving adapter, so this is the same story as
+# every other adapter — it just happens to live in the same crate.
+[dev-dependencies]
+tokio = { workspace = true }
