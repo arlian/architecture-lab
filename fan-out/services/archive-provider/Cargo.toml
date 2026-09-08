@@ -1,0 +1,21 @@
+[package]
+name = "archive-provider"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "archive-provider"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+# This provider's whole job is to fail a configurable fraction of the time.
+rand = { workspace = true }
