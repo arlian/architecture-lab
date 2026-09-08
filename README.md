@@ -14,6 +14,7 @@ architecture lives in its own self-contained subdirectory with its own build.
 | [`saga/`](./saga)                         | Saga (orchestrated) | Rust + Axum + NATS |
 | [`choreography/`](./choreography)         | Saga (choreographed) | Rust + Axum + NATS |
 | [`bff/`](./bff)                           | Backend for Frontend | Rust + Axum        |
+| [`fan-out/`](./fan-out)                   | Fan-out / fan-in     | Rust + Axum       |
 | [`hexagonal/`](./hexagonal)               | Hexagonal (ports & adapters) | Rust + Axum |
 
 The first five share the same little e-commerce domain (users, catalog,
@@ -31,6 +32,17 @@ against `choreography/services/orders-service/src/tracker.rs` and the entire
 trade is visible in one file. `bff/` branches off `microservices/` instead:
 same backend, but now two different client-facing gateways decide how much of
 it each client actually sees.
+
+`fan-out/` branches off `bff/` in turn. A BFF was the first lab where one
+inbound request became several outbound ones — and it waits for all of them,
+so any single failure sinks the whole response. `fan-out/` keeps that shape and
+asks the question left behind: when one request becomes N, what do you return
+if only some come back? A gateway scatters one search across three providers —
+one fast, one deliberately too slow, one that fails half the time — under a
+deadline, and returns whatever arrived plus an honest report of what didn't.
+Diff `bff/services/web-bff/src/views.rs` against
+`fan-out/services/search-gateway/src/scatter.rs`: `try_join_all` becomes
+`join_all`, and that one word is most of the pattern.
 
 `hexagonal/` is the odd one out, and the smallest: it asks a question none of
 the others do. Every lab above decides *where* boundaries go — between
@@ -55,6 +67,7 @@ architecture-lab/
 ├── saga/                 # six deployables; Orders orchestrates a saga across Inventory and Payments, with an explicit compensating action on failure
 ├── choreography/         # the same six, with the orchestrator removed; the workflow is emergent, compensation is self-triggered, and no service can say whether an order is done
 ├── bff/                  # five deployables; a web gateway and a mobile gateway each aggregate the same three backend services differently
+├── fan-out/              # four deployables; one gateway scatters a search to three interchangeable providers under a deadline and merges what comes back
 └── hexagonal/            # one library that can't see the outside world, plus two programs that drive it (HTTP and CLI) over swappable storage
 ```
 
