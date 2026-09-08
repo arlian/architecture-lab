@@ -1,0 +1,58 @@
+# Runs the gateway plus all three providers as containers on one network.
+#
+#   * Each service builds from the SAME context (the workspace root, `.`) but a
+#     different Dockerfile — one image per deployable, same as the other labs.
+#   * Only ONE service's config mentions any other service: the gateway's
+#     `PROVIDERS` registry. The providers know nothing about the gateway or
+#     about each other, and would be perfectly happy being curled directly.
+#   * That registry is also the whole "add a provider" story. Copy a provider
+#     block, add `name=http://host:port` to PROVIDERS, `docker compose up` —
+#     no Rust changes anywhere.
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: services/search-gateway/Dockerfile
+    ports:
+      - "3010:3010"
+    environment:
+      PROVIDERS: catalog=http://catalog:3011,partner=http://partner:3012,archive=http://archive:3013
+      BUDGET_MS: "500"
+    # `depends_on` only orders container *startup*, not readiness — but unlike
+    # the event-driven lab, that genuinely doesn't matter here: the gateway
+    # dials providers lazily, per request, and a provider that isn't up yet is
+    # just another `failed` branch in the report. Fan-out with per-branch
+    # isolation makes boot order a non-event.
+    depends_on:
+      - catalog
+      - partner
+      - archive
+
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog-provider/Dockerfile
+    ports:
+      - "3011:3011"
+
+  partner:
+    build:
+      context: .
+      dockerfile: services/partner-provider/Dockerfile
+    ports:
+      - "3012:3012"
+    environment:
+      # Above the gateway's 500ms budget on purpose. Set it to 100 and watch
+      # partner start appearing in the results without restarting the gateway.
+      LATENCY_MS: "800"
+
+  archive:
+    build:
+      context: .
+      dockerfile: services/archive-provider/Dockerfile
+    ports:
+      - "3013:3013"
+    environment:
+      # Half of all searches 503. Set it to 0 for a provider that behaves.
+      FAILURE_RATE: "0.5"
