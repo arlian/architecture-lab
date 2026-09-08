@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+# Same rationale as the microservices and bff workspaces: one `cargo build`
+# locally, but each member is conceptually its own repo/pipeline/container.
+#
+# What the members agree on here is narrower than in any earlier lab: the three
+# providers share nothing with the gateway except *one* wire shape — the
+# `GET /search?q=` response. They are homogeneous on purpose. That is what lets
+# the gateway hold a list of providers instead of three hand-written clients,
+# and what lets a fourth provider be added without touching gateway code.
+members = [
+    "services/search-gateway",
+    "services/catalog-provider",
+    "services/partner-provider",
+    "services/archive-provider",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. As in the earlier labs we deliberately do NOT share a
+# `shared` crate — each service duplicates the tiny bits it needs (AppError, the
+# `Hit` shape). That duplication is a feature: it keeps services independently
+# deployable, and it means a provider can change its internals without the
+# gateway recompiling.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+async-trait = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Every provider call is plain HTTP, same as microservices and bff.
+reqwest = { version = "0.12", features = ["json"] }
+# The gateway scatters with `join_all` — note: NOT `try_join_all`, which is what
+# bff's aggregation uses. That one-word difference is most of this lab.
+futures = "0.3"
+# archive-provider only, to fail a configurable fraction of requests on purpose.
+rand = "0.8"
