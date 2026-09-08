@@ -1,0 +1,22 @@
+[package]
+name = "search-gateway"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "search-gateway"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+reqwest = { workspace = true }
+futures = { workspace = true }
