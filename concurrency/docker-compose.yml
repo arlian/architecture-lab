@@ -1,0 +1,74 @@
+# The four strategies, side by side on one network, each on its own port.
+#
+#   * Same build context (the workspace root, `.`), one Dockerfile per service —
+#     as in every other lab.
+#   * NO service names any other service. There is nothing to wire: these four
+#     are not a system, they are four answers to one question, and the only
+#     thing that talks to them is the runner.
+#   * Every knob below is a lever from a README section. Change one, `docker
+#     compose up -d --force-recreate <svc>`, rerun the runner, read the diff.
+
+services:
+  naive:
+    build:
+      context: .
+      dockerfile: services/naive-service/Dockerfile
+    ports:
+      - "3020:3020"
+    environment:
+      # The race window. 0 makes the bug hide; bigger makes it worse.
+      THINK_MS: "5"
+
+  optimistic:
+    build:
+      context: .
+      dockerfile: services/optimistic-service/Dockerfile
+    ports:
+      - "3021:3021"
+    environment:
+      THINK_MS: "5"
+      # Server-side retries before a conflict becomes the client's 409.
+      # Set to 0 to see the true conflict rate instead of the hidden one.
+      RETRIES: "8"
+
+  pessimistic:
+    build:
+      context: .
+      dockerfile: services/pessimistic-service/Dockerfile
+    ports:
+      - "3022:3022"
+    environment:
+      THINK_MS: "5"
+      # `key` = one lock per product. `global` = one lock for the whole service.
+      # Both correct; run `--products 8` against each and compare the wall time.
+      LOCK_SCOPE: "key"
+
+  actor:
+    build:
+      context: .
+      dockerfile: services/actor-service/Dockerfile
+    ports:
+      - "3023:3023"
+    environment:
+      THINK_MS: "5"
+      # The only explicit backpressure limit in the lab. Drop it to 4 and watch
+      # the service return 503 instead of silently growing a queue.
+      MAILBOX: "64"
+
+  # Not a service. Run it on demand:
+  #   docker compose run --rm runner
+  #   docker compose run --rm runner --target http://pessimistic:3022 --products 8
+  runner:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: tools/race-runner/Dockerfile
+    depends_on:
+      - naive
+      - optimistic
+      - pessimistic
+      - actor
+    # Container DNS names, not localhost — `--target all` only knows the
+    # localhost ports, so name them explicitly in here.
+    entrypoint: ["race-runner"]
+    command: ["--target", "http://naive:3020"]
