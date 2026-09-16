@@ -1,0 +1,10 @@
+# Keep the Docker build context small and reproducible. Notably exclude the
+# local build output so the image is always built fresh inside the container.
+target/
+**/target/
+.git/
+.gitignore
+*.md
+run-all.ps1
+docker-compose.yml
+**/Dockerfile

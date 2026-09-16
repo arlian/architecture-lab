@@ -1,0 +1,45 @@
+[workspace]
+resolver = "2"
+# Same rationale as every other workspace in this repo: one `cargo build`
+# locally, but each member is conceptually its own deployable.
+#
+# What the members agree on here is *only* an HTTP contract — the same four
+# endpoints, the same request bodies, the same response shape. Four services
+# implement it four different ways, and one CLI hammers whichever of them you
+# point it at. That is the whole experiment: hold the contract still, vary the
+# concurrency strategy underneath it, and measure what changes.
+members = [
+    "services/naive-service",
+    "services/optimistic-service",
+    "services/pessimistic-service",
+    "services/actor-service",
+    "tools/race-runner",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+# Common versions. As in the earlier labs there is deliberately no `shared`
+# crate: the four services duplicate their `Entry`, their `AppError`, and their
+# HTTP surface. Here that duplication earns its keep more than anywhere else —
+# the whole point is to read `store.rs` four times and see four different
+# answers to the same question, and a shared abstraction would be the one thing
+# guaranteed to hide the difference.
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# The race-runner fires every request at once and waits for all of them — the
+# same `join_all` the fan-out lab leans on, used here to *cause* a race rather
+# than to survive one.
+futures = "0.3"
+reqwest = { version = "0.12", features = ["json"] }
+# optimistic-service only: jittered backoff between retries. Retrying without
+# jitter turns a conflict into a herd, which is its own lesson — see store.rs.
+rand = "0.8"
