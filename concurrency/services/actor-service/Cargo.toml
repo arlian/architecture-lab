@@ -1,0 +1,21 @@
+[package]
+name = "actor-service"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "actor-service"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+futures = { workspace = true }
