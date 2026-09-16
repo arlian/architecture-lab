@@ -16,6 +16,7 @@ architecture lives in its own self-contained subdirectory with its own build.
 | [`bff/`](./bff)                           | Backend for Frontend | Rust + Axum        |
 | [`fan-out/`](./fan-out)                   | Fan-out / fan-in     | Rust + Axum       |
 | [`hexagonal/`](./hexagonal)               | Hexagonal (ports & adapters) | Rust + Axum |
+| [`concurrency/`](./concurrency)           | Concurrency control  | Rust + Axum       |
 
 The first five share the same little e-commerce domain (users, catalog,
 orders) on purpose — read them side by side to see how the *same* logic
@@ -54,6 +55,17 @@ storage backends. Diff `hexagonal/orders-core/src/service.rs` against
 `microservices/services/orders-service/src/service.rs`: the logic barely
 moves, but everything around it does.
 
+`concurrency/` is the odd one out in a different way: it is the only lab whose
+subject is a *bug*. Every architecture above has a service that reads a number,
+decides something, and writes it back — all of them written as if there were
+one caller. This lab puts two callers on the same row and asks which of them is
+allowed to be wrong. Four services implement one identical HTTP contract four
+ways (no coordination, version compare-and-swap, per-key locks, single-writer
+actor), and a `race-runner` CLI fires sixty reservations at once and audits the
+books afterwards. The baseline oversells 118 units out of 100 while returning
+sixty `200 OK`s, and its test suite asserts that it does. Diff the four
+`store.rs` files against each other — that diff is the whole lab.
+
 More to come as I explore other patterns.
 
 ## Layout
@@ -68,7 +80,8 @@ architecture-lab/
 ├── choreography/         # the same six, with the orchestrator removed; the workflow is emergent, compensation is self-triggered, and no service can say whether an order is done
 ├── bff/                  # five deployables; a web gateway and a mobile gateway each aggregate the same three backend services differently
 ├── fan-out/              # four deployables; one gateway scatters a search to three interchangeable providers under a deadline and merges what comes back
-└── hexagonal/            # one library that can't see the outside world, plus two programs that drive it (HTTP and CLI) over swappable storage
+├── hexagonal/            # one library that can't see the outside world, plus two programs that drive it (HTTP and CLI) over swappable storage
+└── concurrency/          # four deployables answering one question four ways; the first is wrong on purpose, and a CLI proves it by overselling the warehouse
 ```
 
 Each subdirectory has its own README explaining that architecture and how to run it.
