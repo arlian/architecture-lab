@@ -1,0 +1,18 @@
+[package]
+name = "race-runner"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "race-runner"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true }
+# The same `join_all` the fan-out lab uses to survive a scatter. Here it is
+# pointed the other way: to make every request leave at the same instant, which
+# is the only reliable way to reproduce a race on demand.
+futures = { workspace = true }
