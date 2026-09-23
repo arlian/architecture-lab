@@ -1,0 +1,28 @@
+[workspace]
+resolver = "2"
+# The dual-write lab. One service writes an order and must also tell the
+# ledger; the ledger keeps the books; the runner checks both sets of books
+# against each other. orders-service runs twice, once per MODE, so the only
+# variable is how the second write happens.
+members = [
+    "services/orders-service",
+    "services/ledger-service",
+    "tools/audit-runner",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+reqwest = { version = "0.12", features = ["json"] }
+# The crash simulator: a coin flip at the worst possible moment.
+rand = "0.8"
+futures = "0.3"
