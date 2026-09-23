@@ -17,6 +17,7 @@ architecture lives in its own self-contained subdirectory with its own build.
 | [`fan-out/`](./fan-out)                   | Fan-out / fan-in     | Rust + Axum       |
 | [`hexagonal/`](./hexagonal)               | Hexagonal (ports & adapters) | Rust + Axum |
 | [`concurrency/`](./concurrency)           | Concurrency control  | Rust + Axum       |
+| [`outbox/`](./outbox)                     | Transactional outbox + inbox | Rust + Axum |
 
 The first five share the same little e-commerce domain (users, catalog,
 orders) on purpose — read them side by side to see how the *same* logic
@@ -81,7 +82,8 @@ architecture-lab/
 ├── bff/                  # five deployables; a web gateway and a mobile gateway each aggregate the same three backend services differently
 ├── fan-out/              # four deployables; one gateway scatters a search to three interchangeable providers under a deadline and merges what comes back
 ├── hexagonal/            # one library that can't see the outside world, plus two programs that drive it (HTTP and CLI) over swappable storage
-└── concurrency/          # four deployables answering one question four ways; the first is wrong on purpose, and a CLI proves it by overselling the warehouse
+├── concurrency/          # four deployables answering one question four ways; the first is wrong on purpose, and a CLI proves it by overselling the warehouse
+└── outbox/               # one service in two modes plus a ledger; a CLI counts the events a dual write loses, and the duplicates the fix creates
 ```
 
 Each subdirectory has its own README explaining that architecture and how to run it.
