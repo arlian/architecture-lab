@@ -79,3 +79,64 @@ impl Db {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn event(order_id: u64, amount: u64) -> Event {
+        Event {
+            event_id: format!("evt-{order_id}"),
+            source: "test".into(),
+            order_id,
+            amount,
+        }
+    }
+
+    /// An order and its event committed in one transaction. Until the relay
+    /// marks the row sent, the event is owed, and `stats` has to say so.
+    #[test]
+    fn an_order_and_its_event_land_together() {
+        let db = Db::default();
+
+        let id = db.transaction(|t| {
+            let id = t.insert_order(40);
+            t.outbox.push(OutboxRow {
+                event: event(id, 40),
+                sent: false,
+            });
+            id
+        });
+
+        let stats = db.stats();
+        assert_eq!((stats.orders, stats.revenue, stats.pending_outbox), (1, 40, 1));
+        let unsent = db.unsent();
+        assert_eq!(unsent.len(), 1);
+        assert_eq!(unsent[0].1.order_id, id);
+    }
+
+    /// The relay publishes oldest first and marks each row as it goes. A row
+    /// marked sent must drop out of `unsent` and stop counting as pending,
+    /// or the relay would publish it forever.
+    #[test]
+    fn marking_a_row_sent_removes_it_from_the_backlog() {
+        let db = Db::default();
+        db.transaction(|t| {
+            for amount in [10, 20, 30] {
+                let id = t.insert_order(amount);
+                t.outbox.push(OutboxRow {
+                    event: event(id, amount),
+                    sent: false,
+                });
+            }
+        });
+
+        let first = db.unsent()[0].0;
+        db.mark_sent(first);
+
+        let left: Vec<u64> = db.unsent().iter().map(|(_, e)| e.order_id).collect();
+        assert_eq!(left, vec![2, 3]);
+        assert_eq!(db.stats().pending_outbox, 2);
+        assert_eq!(db.stats().revenue, 60);
+    }
+}
