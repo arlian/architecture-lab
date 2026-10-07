@@ -10,9 +10,9 @@ audit-runner ──POST /orders──▶ orders-service (MODE=naive  :3030) ─�
                               orders-service (MODE=outbox :3031) ──relay───────▶
 ```
 
-| Mode     | Write path                                    | Crash lands…                     | Result                     |
-| -------- | --------------------------------------------- | -------------------------------- | -------------------------- |
-| `naive`  | commit order → publish                         | after commit, before publish     | **lost** events            |
+| Mode     | Write path                                                                 | Crash lands…                    | Result                     |
+| -------- | -------------------------------------------------------------------------- | ------------------------------- | -------------------------- |
+| `naive`  | commit order → publish                                                     | after commit, before publish    | **lost** events            |
 | `outbox` | commit order + outbox row in one transaction; relay publishes → marks sent | after publish, before mark sent | **duplicates**, never loss |
 
 The ledger keeps its books twice from the same deliveries: without an inbox
