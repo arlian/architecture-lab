@@ -67,6 +67,17 @@ books afterwards. The baseline oversells 118 units out of 100 while returning
 sixty `200 OK`s, and its test suite asserts that it does. Diff the four
 `store.rs` files against each other — that diff is the whole lab.
 
+`outbox/` goes back to a debt the NATS labs left open. Every one of them saves
+a row and then publishes an event — two writes to two systems — and a comment
+in `event-driven/services/users-service/src/service.rs` admits that a crash
+between them loses the event silently. This lab puts a number on that loss. One
+orders-service runs twice, once writing naively and once through an outbox
+table and a relay; a ledger keeps its books with and without an inbox; and an
+`audit-runner` CLI reconciles orders against revenue. The naive mode loses
+events, the outbox mode loses none but delivers some twice, and only outbox
+plus inbox balances exactly. Read `services/orders-service/src/write.rs` — both
+write paths sit side by side in one file.
+
 More to come as I explore other patterns.
 
 ## Layout
