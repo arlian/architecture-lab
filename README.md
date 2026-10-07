@@ -5,19 +5,19 @@ architecture lives in its own self-contained subdirectory with its own build.
 
 ## Architectures
 
-| Directory                                 | Pattern             | Stack             |
-| ----------------------------------------- | ------------------- | ----------------- |
-| [`modular-monolith/`](./modular-monolith) | Modular monolith     | Rust + Axum        |
-| [`microservices/`](./microservices)       | Microservices        | Rust + Axum        |
-| [`event-driven/`](./event-driven)         | Event-driven         | Rust + Axum + NATS |
-| [`cqrs-es/`](./cqrs-es)                   | CQRS + event sourcing| Rust + Axum + NATS |
-| [`saga/`](./saga)                         | Saga (orchestrated) | Rust + Axum + NATS |
-| [`choreography/`](./choreography)         | Saga (choreographed) | Rust + Axum + NATS |
-| [`bff/`](./bff)                           | Backend for Frontend | Rust + Axum        |
-| [`fan-out/`](./fan-out)                   | Fan-out / fan-in     | Rust + Axum       |
-| [`hexagonal/`](./hexagonal)               | Hexagonal (ports & adapters) | Rust + Axum |
-| [`concurrency/`](./concurrency)           | Concurrency control  | Rust + Axum       |
-| [`outbox/`](./outbox)                     | Transactional outbox + inbox | Rust + Axum |
+| Directory                                 | Pattern                      | Stack              |
+| ----------------------------------------- | ---------------------------- | ------------------ |
+| [`modular-monolith/`](./modular-monolith) | Modular monolith             | Rust + Axum        |
+| [`microservices/`](./microservices)       | Microservices                | Rust + Axum        |
+| [`event-driven/`](./event-driven)         | Event-driven                 | Rust + Axum + NATS |
+| [`cqrs-es/`](./cqrs-es)                   | CQRS + event sourcing        | Rust + Axum + NATS |
+| [`saga/`](./saga)                         | Saga (orchestrated)          | Rust + Axum + NATS |
+| [`choreography/`](./choreography)         | Saga (choreographed)         | Rust + Axum + NATS |
+| [`bff/`](./bff)                           | Backend for Frontend         | Rust + Axum        |
+| [`fan-out/`](./fan-out)                   | Fan-out / fan-in             | Rust + Axum        |
+| [`hexagonal/`](./hexagonal)               | Hexagonal (ports & adapters) | Rust + Axum        |
+| [`concurrency/`](./concurrency)           | Concurrency control          | Rust + Axum        |
+| [`outbox/`](./outbox)                     | Transactional outbox + inbox | Rust + Axum        |
 
 The first five share the same little e-commerce domain (users, catalog,
 orders) on purpose — read them side by side to see how the *same* logic
