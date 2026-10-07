@@ -13,6 +13,7 @@
 //! duplicates would have cost and that the inbox absorbed them.
 //!
 //! ```text
+//! GET  /health         -> 200 "ok"
 //! POST /events         {event_id, source, order_id, amount} -> 200
 //! GET  /books/:source  -> 200 { deliveries, without_inbox: {events, revenue},
 //!                                           with_inbox:    {events, revenue} }

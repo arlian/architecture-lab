@@ -1,4 +1,5 @@
 //! ```text
+//! GET  /health          -> 200 "ok"
 //! POST /orders {amount} -> 201 { order_id }
 //!                       -> 500 { error }   (naive only, and the order may still exist)
 //! GET  /stats           -> 200 { mode, orders, revenue, pending_outbox }
