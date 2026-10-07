@@ -224,7 +224,8 @@ exists.
   row in the same in-memory/DB transaction as the entity, relay it separately)
   or switch to NATS **JetStream** for persistent, replayable streams with
   acks — then kill orders-service mid-run and watch it catch up on restart
-  instead of missing events forever.
+  instead of missing events forever. The [`outbox/`](../outbox) lab works the
+  outbox half of this exercise and measures what it loses and duplicates.
 - **Give the read model a cold-start story.** Right now a fresh orders-service
   only learns about users/products created *after* it started listening.
   Replay (JetStream) or a snapshot/backfill endpoint on Users/Catalog would
