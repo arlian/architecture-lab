@@ -1,10 +1,12 @@
-# Starts the ledger and both orders-service modes, each in its own window.
+# Starts the ledger and both orders-service modes, each in its own PowerShell
+# window, from the workspace root. Ctrl-C each window to stop it.
 #
 # Ports: naive 3030, outbox 3031, ledger 3040. Then:
 #
 #   cargo run -p audit-runner
 #
-# Knob: $env:CRASH_RATE=0.3 before launching makes every failure louder.
+# Knob: CRASH_RATE defaults to 0.1. Setting $env:CRASH_RATE=0.3 before
+# launching makes every failure louder.
 
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
