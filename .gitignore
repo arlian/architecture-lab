@@ -5,3 +5,9 @@ Cargo.lock
 
 # hexagonal lab: order stores created by its CLI/serve demo
 hexagonal/*.json
+
+# Editor and OS clutter
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
