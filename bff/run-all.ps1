@@ -1,5 +1,5 @@
 # Starts all five services, each in its own PowerShell window, from the
-# workspace root. Handy for local exploration. Ctrl-C each window to stop.
+# workspace root. Handy for local exploration. Ctrl-C each window to stop it.
 #
 # Ports: users 3001, catalog 3002, orders 3003, web-bff 3004, mobile-bff 3005.
 # orders reads USERS_URL/CATALOG_URL; the BFFs read ORDERS_URL/USERS_URL
