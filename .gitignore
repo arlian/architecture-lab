@@ -11,3 +11,5 @@ hexagonal/*.json
 .idea/
 .DS_Store
 Thumbs.db
+*.swp
+*~
