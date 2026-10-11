@@ -31,5 +31,9 @@ thiserror = "1"
 async-trait = "0.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Same broker as event-driven: plain NATS core (no JetStream). The event store
+# lives inside orders-command-service; NATS only carries the events out to the
+# projections, it is not the log.
 async-nats = ">=0.33, <1.0"
+# StreamExt, for consuming NATS subscriptions in the projections.
 futures = "0.3"
