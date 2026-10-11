@@ -17,6 +17,10 @@ edition = "2021"
 version = "0.1.0"
 license = "MIT"
 
+# Common versions. As in the earlier labs we deliberately do NOT share a
+# `shared` crate — each service duplicates the tiny bits it needs (AppError,
+# event shapes). That duplication is a feature: it keeps services
+# independently deployable.
 [workspace.dependencies]
 axum = "0.7"
 tokio = { version = "1", features = ["full"] }
