@@ -15,6 +15,9 @@ edition = "2021"
 version = "0.1.0"
 license = "MIT"
 
+# Common versions. As in the earlier labs we deliberately do NOT share a
+# `shared` crate — orders-service and ledger-service each define their own
+# `Event`. They share a message format, not a crate.
 [workspace.dependencies]
 axum = "0.7"
 tokio = { version = "1", features = ["full"] }
