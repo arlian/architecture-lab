@@ -25,7 +25,10 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# The "broker" is an HTTP POST to the ledger; the dual-write problem is the same
+# with NATS. The audit-runner uses it too, to read both sets of books.
 reqwest = { version = "0.12", features = ["json"] }
 # The crash simulator: a coin flip at the worst possible moment.
 rand = "0.8"
+# audit-runner only: `join_all` fires the orders concurrently.
 futures = "0.3"
