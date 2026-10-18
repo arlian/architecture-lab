@@ -1,5 +1,8 @@
 [workspace]
 resolver = "2"
+# One deployable made of library crates: `app` is the only binary, and it is the
+# composition root that wires `users`, `catalog` and `orders` together. `shared`
+# is the small kernel every module may depend on — see its crate docs.
 members = [
     "modules/shared",
     "modules/users",
