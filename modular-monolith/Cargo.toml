@@ -29,7 +29,8 @@ async-trait = "0.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# Internal module crates.
+# Internal module crates. Cargo enforces the boundaries: a module can only
+# `use` another one if it lists it in its own Cargo.toml.
 shared = { path = "modules/shared" }
 users = { path = "modules/users" }
 catalog = { path = "modules/catalog" }
