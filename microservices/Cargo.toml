@@ -25,6 +25,8 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
+# Each service keeps its own AppError built on thiserror, rather than importing
+# one from a shared crate.
 thiserror = "1"
 async-trait = "0.1"
 tracing = "0.1"
