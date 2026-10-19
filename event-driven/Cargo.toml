@@ -36,4 +36,5 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # That trade-off is deliberate for a first pass at choreography; see the
 # README's "where to take it next" section for JetStream/Kafka as an exercise.
 async-nats = ">=0.33, <1.0"
+# Supplies `StreamExt`, used to loop over NATS subscriptions as async streams.
 futures = "0.3"
