@@ -146,4 +146,32 @@ mod tests {
         assert_eq!(published.len(), 1);
         assert_eq!(published[0].0, UserRegistered::SUBJECT);
     }
+
+    #[tokio::test]
+    async fn rejects_invalid_email_without_publishing() {
+        let (svc, bus) = service();
+        let err = svc
+            .create(CreateUser {
+                email: "not-an-email".into(),
+                name: "Ada".into(),
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+        assert!(bus.published.lock().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn rejects_blank_name_without_publishing() {
+        let (svc, bus) = service();
+        let err = svc
+            .create(CreateUser {
+                email: "ada@example.com".into(),
+                name: "   ".into(),
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+        assert!(bus.published.lock().await.is_empty());
+    }
 }
