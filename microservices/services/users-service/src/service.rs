@@ -91,4 +91,30 @@ mod tests {
         let err = svc.create(cmd()).await.unwrap_err();
         assert!(matches!(err, AppError::Conflict(_)));
     }
+
+    #[tokio::test]
+    async fn rejects_invalid_email() {
+        let svc = service();
+        let err = svc
+            .create(CreateUser {
+                email: "not-an-email".into(),
+                name: "Ada".into(),
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+    }
+
+    #[tokio::test]
+    async fn rejects_blank_name() {
+        let svc = service();
+        let err = svc
+            .create(CreateUser {
+                email: "ada@example.com".into(),
+                name: "   ".into(),
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+    }
 }
