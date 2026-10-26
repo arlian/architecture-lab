@@ -161,4 +161,32 @@ mod tests {
         assert_eq!(published.len(), 2);
         assert_eq!(published[1].0, ProductPriceChanged::SUBJECT);
     }
+
+    #[tokio::test]
+    async fn rejects_blank_name_without_publishing() {
+        let (svc, bus) = service();
+        let err = svc
+            .create(CreateProduct {
+                name: "  ".into(),
+                price_cents: 500,
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+        assert!(bus.published.lock().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn rejects_zero_price_without_publishing() {
+        let (svc, bus) = service();
+        let err = svc
+            .create(CreateProduct {
+                name: "Free Sample".into(),
+                price_cents: 0,
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+        assert!(bus.published.lock().await.is_empty());
+    }
 }
