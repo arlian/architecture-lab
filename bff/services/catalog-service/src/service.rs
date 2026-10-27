@@ -47,3 +47,62 @@ impl ProductService {
         self.repo.all().await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::repository::InMemoryProductRepository;
+
+    fn service() -> ProductService {
+        ProductService::new(Arc::new(InMemoryProductRepository::default()))
+    }
+
+    #[tokio::test]
+    async fn creates_and_reads_back_a_product() {
+        let svc = service();
+        let product = svc
+            .create(CreateProduct {
+                name: "Coffee Mug".into(),
+                price_cents: 1299,
+            })
+            .await
+            .unwrap();
+
+        let fetched = svc.get(product.id).await.unwrap();
+        assert_eq!(fetched.price_cents, 1299);
+    }
+
+    #[tokio::test]
+    async fn rejects_blank_name() {
+        let svc = service();
+        let err = svc
+            .create(CreateProduct {
+                name: "  ".into(),
+                price_cents: 500,
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+    }
+
+    #[tokio::test]
+    async fn rejects_zero_price() {
+        let svc = service();
+        let err = svc
+            .create(CreateProduct {
+                name: "Free Sample".into(),
+                price_cents: 0,
+            })
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AppError::Validation(_)));
+    }
+
+    #[tokio::test]
+    async fn unknown_product_is_not_found() {
+        let svc = service();
+        let err = svc.get(ProductId::new()).await.unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
+    }
+}
