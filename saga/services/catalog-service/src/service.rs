@@ -189,4 +189,12 @@ mod tests {
         assert!(matches!(err, AppError::Validation(_)));
         assert!(bus.published.lock().await.is_empty());
     }
+
+    #[tokio::test]
+    async fn update_price_of_unknown_product_is_not_found() {
+        let (svc, bus) = service();
+        let err = svc.update_price(ProductId::new(), 900).await.unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
+        assert!(bus.published.lock().await.is_empty());
+    }
 }
