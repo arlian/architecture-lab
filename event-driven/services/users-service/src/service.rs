@@ -174,4 +174,11 @@ mod tests {
         assert!(matches!(err, AppError::Validation(_)));
         assert!(bus.published.lock().await.is_empty());
     }
+
+    #[tokio::test]
+    async fn unknown_user_is_not_found() {
+        let (svc, _bus) = service();
+        let err = svc.get(UserId::new()).await.unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
+    }
 }
